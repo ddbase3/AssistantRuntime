@@ -15,9 +15,11 @@
 namespace AssistantRuntime;
 
 use AssistantFoundation\Api\IAgentConfigFormService;
+use AssistantFoundation\Api\IAgentContextProfileService;
 use AssistantFoundation\Api\IAgentExecutionService;
 use AssistantFoundation\Api\IAgentRuntimeRegistry;
 use AssistantFoundation\Api\IAgentRuntimeSelector;
+use AssistantRuntime\Service\AgentContextProfileService;
 use AssistantRuntime\Service\AgentRuntimeRegistry;
 use AssistantRuntime\Service\CompositeAgentConfigFormService;
 use AssistantRuntime\Service\RoutingAgentExecutionService;
@@ -38,6 +40,16 @@ class AssistantRuntimePlugin implements IPlugin {
 	public function init() {
 		$this->container
 			->set(self::getName(), $this, IContainer::SHARED | IContainer::NOOVERWRITE)
+			->set(
+				AgentContextProfileService::class,
+				fn($c) => new AgentContextProfileService($c->get(IClassMap::class)),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				IAgentContextProfileService::class,
+				fn($c) => $c->get(AgentContextProfileService::class),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
 			->set(
 				AgentRuntimeRegistry::class,
 				fn($c) => new AgentRuntimeRegistry($c->get(IClassMap::class)),

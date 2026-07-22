@@ -19,3 +19,10 @@ runtime-specific forms.
 Chatbot and Agent Admin use the same registry and router. The Chatbot presents a
 single backend selector that combines direct services such as Dummy with all
 registered agent runtimes. Agent Admin presents only the agent runtime selector.
+
+## Context profiles
+
+`AgentContextProfileService` discovers runtime-neutral context-profile providers
+through the BASE3 class map. Profile IDs form one global namespace. The service
+returns ordered instruction blocks for one `AgentExecutionRequest`; it does not
+own profile storage or runtime-specific prompt mapping.
