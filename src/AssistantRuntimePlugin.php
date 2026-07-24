@@ -19,15 +19,20 @@ use AssistantFoundation\Api\IAgentContextProfileService;
 use AssistantFoundation\Api\IAgentExecutionService;
 use AssistantFoundation\Api\IAgentRuntimeRegistry;
 use AssistantFoundation\Api\IAgentRuntimeSelector;
+use AssistantFoundation\Api\IAgentSuspensionRepository;
+use AssistantFoundation\Api\IAgentToolProfileService;
 use AssistantRuntime\Service\AgentContextProfileService;
 use AssistantRuntime\Service\AgentRuntimeRegistry;
+use AssistantRuntime\Service\AgentToolProfileService;
 use AssistantRuntime\Service\CompositeAgentConfigFormService;
 use AssistantRuntime\Service\RoutingAgentExecutionService;
+use AssistantRuntime\Service\StateStoreAgentSuspensionRepository;
 use AssistantRuntime\Service\StrictAgentRuntimeSelector;
 use Base3\Api\IClassMap;
 use Base3\Api\IContainer;
 use Base3\Api\IPlugin;
 use Base3\Api\IRequest;
+use Base3\State\Api\IStateStore;
 
 class AssistantRuntimePlugin implements IPlugin {
 
@@ -48,6 +53,26 @@ class AssistantRuntimePlugin implements IPlugin {
 			->set(
 				IAgentContextProfileService::class,
 				fn($c) => $c->get(AgentContextProfileService::class),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				AgentToolProfileService::class,
+				fn($c) => new AgentToolProfileService($c->get(IClassMap::class)),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				IAgentToolProfileService::class,
+				fn($c) => $c->get(AgentToolProfileService::class),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				StateStoreAgentSuspensionRepository::class,
+				fn($c) => new StateStoreAgentSuspensionRepository($c->get(IStateStore::class)),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				IAgentSuspensionRepository::class,
+				fn($c) => $c->get(StateStoreAgentSuspensionRepository::class),
 				IContainer::SHARED | IContainer::NOOVERWRITE
 			)
 			->set(
