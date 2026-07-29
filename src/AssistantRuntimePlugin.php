@@ -15,17 +15,21 @@
 namespace AssistantRuntime;
 
 use AssistantFoundation\Api\IAgentConfigFormService;
+use AssistantFoundation\Api\IAgentConversationService;
 use AssistantFoundation\Api\IAgentContextProfileService;
 use AssistantFoundation\Api\IAgentExecutionService;
 use AssistantFoundation\Api\IAgentRuntimeRegistry;
 use AssistantFoundation\Api\IAgentRuntimeSelector;
 use AssistantFoundation\Api\IAgentSuspensionRepository;
+use AssistantFoundation\Api\IAgentTextTaskService;
 use AssistantFoundation\Api\IAgentToolProfileService;
 use AssistantRuntime\Service\AgentContextProfileService;
 use AssistantRuntime\Service\AgentRuntimeRegistry;
 use AssistantRuntime\Service\AgentToolProfileService;
 use AssistantRuntime\Service\CompositeAgentConfigFormService;
+use AssistantRuntime\Service\RoutingAgentConversationService;
 use AssistantRuntime\Service\RoutingAgentExecutionService;
+use AssistantRuntime\Service\RoutingAgentTextTaskService;
 use AssistantRuntime\Service\StateStoreAgentSuspensionRepository;
 use AssistantRuntime\Service\StrictAgentRuntimeSelector;
 use Base3\Api\IClassMap;
@@ -106,6 +110,32 @@ class AssistantRuntimePlugin implements IPlugin {
 			->set(
 				IAgentExecutionService::class,
 				fn($c) => $c->get(RoutingAgentExecutionService::class),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				RoutingAgentConversationService::class,
+				fn($c) => new RoutingAgentConversationService(
+					$c->get(IAgentRuntimeRegistry::class),
+					$c->get(IAgentRuntimeSelector::class)
+				),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				IAgentConversationService::class,
+				fn($c) => $c->get(RoutingAgentConversationService::class),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				RoutingAgentTextTaskService::class,
+				fn($c) => new RoutingAgentTextTaskService(
+					$c->get(IAgentRuntimeRegistry::class),
+					$c->get(IAgentRuntimeSelector::class)
+				),
+				IContainer::SHARED | IContainer::NOOVERWRITE
+			)
+			->set(
+				IAgentTextTaskService::class,
+				fn($c) => $c->get(RoutingAgentTextTaskService::class),
 				IContainer::SHARED | IContainer::NOOVERWRITE
 			)
 			->set(

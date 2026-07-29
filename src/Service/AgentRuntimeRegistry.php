@@ -17,9 +17,11 @@
 
 namespace AssistantRuntime\Service;
 
+use AssistantFoundation\Api\IAgentConversationRuntimeService;
 use AssistantFoundation\Api\IAgentRuntimeConfigFormService;
 use AssistantFoundation\Api\IAgentRuntimeRegistry;
 use AssistantFoundation\Api\IAgentRuntimeService;
+use AssistantFoundation\Api\IAgentTextTaskRuntimeService;
 use Base3\Api\IClassMap;
 use RuntimeException;
 
@@ -30,6 +32,12 @@ final class AgentRuntimeRegistry implements IAgentRuntimeRegistry {
 
 	/** @var array<string,IAgentRuntimeConfigFormService>|null */
 	private ?array $configFormServices = null;
+
+	/** @var array<string,IAgentConversationRuntimeService>|null */
+	private ?array $conversationServices = null;
+
+	/** @var array<string,IAgentTextTaskRuntimeService>|null */
+	private ?array $textTaskServices = null;
 
 	public function __construct(private readonly IClassMap $classMap) {}
 
@@ -50,7 +58,9 @@ final class AgentRuntimeRegistry implements IAgentRuntimeRegistry {
 				'id' => $runtimeId,
 				'label' => trim($service::getRuntimeLabel()) ?: $runtimeId,
 				'description' => trim($service::getRuntimeDescription()),
-				'default_priority' => $service::getDefaultPriority()
+				'default_priority' => $service::getDefaultPriority(),
+				'conversation_service' => isset($this->loadConversationServices()[$runtimeId]),
+				'text_task_service' => isset($this->loadTextTaskServices()[$runtimeId])
 			];
 		}
 
@@ -77,6 +87,24 @@ final class AgentRuntimeRegistry implements IAgentRuntimeRegistry {
 	public function getConfigFormService(string $runtimeId): IAgentRuntimeConfigFormService {
 		$runtimeId = $this->requireRuntimeId($runtimeId);
 		return $this->getPairedRuntimes()[$runtimeId]['config'];
+	}
+
+	public function getConversationService(string $runtimeId): IAgentConversationRuntimeService {
+		$runtimeId = $this->requireRuntimeId($runtimeId);
+		$service = $this->loadConversationServices()[$runtimeId] ?? null;
+		if (!$service instanceof IAgentConversationRuntimeService) {
+			throw new RuntimeException('Agent runtime does not provide conversation access: ' . $runtimeId);
+		}
+		return $service;
+	}
+
+	public function getTextTaskService(string $runtimeId): IAgentTextTaskRuntimeService {
+		$runtimeId = $this->requireRuntimeId($runtimeId);
+		$service = $this->loadTextTaskServices()[$runtimeId] ?? null;
+		if (!$service instanceof IAgentTextTaskRuntimeService) {
+			throw new RuntimeException('Agent runtime does not provide isolated text tasks: ' . $runtimeId);
+		}
+		return $service;
 	}
 
 	/**
@@ -144,6 +172,44 @@ final class AgentRuntimeRegistry implements IAgentRuntimeRegistry {
 		}
 
 		return $this->configFormServices;
+	}
+
+	/** @return array<string,IAgentConversationRuntimeService> */
+	private function loadConversationServices(): array {
+		if ($this->conversationServices !== null) {
+			return $this->conversationServices;
+		}
+
+		$this->conversationServices = [];
+		foreach ($this->classMap->getInstancesByInterface(IAgentConversationRuntimeService::class) as $service) {
+			if (!$service instanceof IAgentConversationRuntimeService) {
+				continue;
+			}
+			$runtimeId = $this->normalizeRuntimeId($service::getRuntimeId());
+			$this->assertUniqueRuntime($this->conversationServices, $runtimeId, 'conversation service');
+			$this->conversationServices[$runtimeId] = $service;
+		}
+
+		return $this->conversationServices;
+	}
+
+	/** @return array<string,IAgentTextTaskRuntimeService> */
+	private function loadTextTaskServices(): array {
+		if ($this->textTaskServices !== null) {
+			return $this->textTaskServices;
+		}
+
+		$this->textTaskServices = [];
+		foreach ($this->classMap->getInstancesByInterface(IAgentTextTaskRuntimeService::class) as $service) {
+			if (!$service instanceof IAgentTextTaskRuntimeService) {
+				continue;
+			}
+			$runtimeId = $this->normalizeRuntimeId($service::getRuntimeId());
+			$this->assertUniqueRuntime($this->textTaskServices, $runtimeId, 'text-task service');
+			$this->textTaskServices[$runtimeId] = $service;
+		}
+
+		return $this->textTaskServices;
 	}
 
 	/** @param array<string,mixed> $services */
