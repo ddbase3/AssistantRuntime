@@ -6,6 +6,11 @@ $showRuntimeSelector = !empty($agentConfigForm['show_runtime_selector']);
 $runtimeActive = !array_key_exists('runtime_active', $agentConfigForm) || !empty($agentConfigForm['runtime_active']);
 $runtimeOptions = is_array($agentConfigForm['runtime_options'] ?? null) ? $agentConfigForm['runtime_options'] : [];
 $runtimeSections = is_array($agentConfigForm['runtime_sections'] ?? null) ? $agentConfigForm['runtime_sections'] : [];
+$translations = is_array($agentConfigForm['translations'] ?? null) ? $agentConfigForm['translations'] : [];
+$t = static function(string $key, string $fallback) use ($translations): string {
+	$value = $translations[$key] ?? null;
+	return is_scalar($value) && trim((string)$value) !== '' ? trim((string)$value) : $fallback;
+};
 $rootId = $formId . '_runtime_config';
 $e = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 $selected = static fn($current, $value): string => (string)$current === (string)$value ? ' selected="selected"' : '';
@@ -30,7 +35,7 @@ $renderRuntimeTemplate = static function(string $template, array $form): void {
 <?php if ($showRuntimeSelector) { ?>
 	<div class="base3-agent-runtime-selector">
 		<div class="base3-agent-runtime-row">
-			<label class="base3-agent-runtime-label" for="<?php echo $e($formId); ?>_runtime">Agent runtime</label>
+			<label class="base3-agent-runtime-label" for="<?php echo $e($formId); ?>_runtime"><?php echo $e($t('agent_runtime_label', 'Agent runtime')); ?></label>
 			<div>
 				<select id="<?php echo $e($formId); ?>_runtime" name="agent_runtime" data-agent-runtime-select="1">
 <?php foreach ($runtimeOptions as $option) {

@@ -36,6 +36,7 @@ use Base3\Api\IClassMap;
 use Base3\Api\IContainer;
 use Base3\Api\IPlugin;
 use Base3\Api\IRequest;
+use Base3\Language\Api\ILanguage;
 use Base3\State\Api\IStateStore;
 
 class AssistantRuntimePlugin implements IPlugin {
@@ -143,7 +144,8 @@ class AssistantRuntimePlugin implements IPlugin {
 				fn($c) => new CompositeAgentConfigFormService(
 					$c->get(IRequest::class),
 					$c->get(IAgentRuntimeRegistry::class),
-					$c->get(IAgentRuntimeSelector::class)
+					$c->get(IAgentRuntimeSelector::class),
+					$c->get(ILanguage::class)
 				),
 				IContainer::SHARED | IContainer::NOOVERWRITE
 			)

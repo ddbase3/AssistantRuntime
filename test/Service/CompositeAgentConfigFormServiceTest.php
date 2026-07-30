@@ -8,6 +8,7 @@ use AssistantFoundation\Api\IAgentRuntimeSelector;
 use AssistantRuntime\Service\CompositeAgentConfigFormService;
 use Base3\Api\IMvcView;
 use Base3\Api\IRequest;
+use Base3\Language\Api\ILanguage;
 use PHPUnit\Framework\TestCase;
 
 final class CompositeAgentConfigFormServiceTest extends TestCase {
@@ -16,6 +17,8 @@ final class CompositeAgentConfigFormServiceTest extends TestCase {
 		$request = $this->createStub(IRequest::class);
 		$registry = $this->createStub(IAgentRuntimeRegistry::class);
 		$selector = $this->createStub(IAgentRuntimeSelector::class);
+		$language = $this->createStub(ILanguage::class);
+		$language->method('getLanguage')->willReturn('en');
 		$missionBay = $this->createMock(IAgentRuntimeConfigFormService::class);
 		$neuron = $this->createMock(IAgentRuntimeConfigFormService::class);
 
@@ -30,7 +33,7 @@ final class CompositeAgentConfigFormServiceTest extends TestCase {
 			->willReturn(['llm' => 'default']);
 		$neuron->expects($this->never())->method('getPostedSettings');
 
-		$service = new CompositeAgentConfigFormService($request, $registry, $selector);
+		$service = new CompositeAgentConfigFormService($request, $registry, $selector, $language);
 		$errors = [];
 		$settings = $service->getPostedSettings($errors, 'missionbay');
 
@@ -43,6 +46,8 @@ final class CompositeAgentConfigFormServiceTest extends TestCase {
 		$request = $this->createStub(IRequest::class);
 		$registry = $this->createStub(IAgentRuntimeRegistry::class);
 		$selector = $this->createStub(IAgentRuntimeSelector::class);
+		$language = $this->createStub(ILanguage::class);
+		$language->method('getLanguage')->willReturn('en');
 		$view = new RuntimeFormFakeView();
 		$missionBay = $this->createStub(IAgentRuntimeConfigFormService::class);
 		$neuron = $this->createStub(IAgentRuntimeConfigFormService::class);
@@ -64,7 +69,7 @@ final class CompositeAgentConfigFormServiceTest extends TestCase {
 			);
 		}
 
-		$service = new CompositeAgentConfigFormService($request, $registry, $selector);
+		$service = new CompositeAgentConfigFormService($request, $registry, $selector, $language);
 		$service->assignViewData($view, [
 			'llm' => 'default',
 			'agent_flow' => ['nodes' => [['id' => 'assistant']]]

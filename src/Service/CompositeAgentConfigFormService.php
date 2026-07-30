@@ -19,16 +19,21 @@ use AssistantFoundation\Api\IAgentRuntimeRegistry;
 use AssistantFoundation\Api\IAgentRuntimeSelector;
 use Base3\Api\IMvcView;
 use Base3\Api\IRequest;
+use Base3\Language\Api\ILanguage;
 
 /**
  * Shared facade that selects one runtime and delegates its configuration.
  */
 final class CompositeAgentConfigFormService implements IAgentConfigFormService {
 
+	/** @var array<string,string>|null */
+	private ?array $translations = null;
+
 	public function __construct(
 		private readonly IRequest $request,
 		private readonly IAgentRuntimeRegistry $runtimeRegistry,
-		private readonly IAgentRuntimeSelector $runtimeSelector
+		private readonly IAgentRuntimeSelector $runtimeSelector,
+		private readonly ILanguage $language
 	) {}
 
 	public static function getName(): string {
@@ -137,7 +142,8 @@ final class CompositeAgentConfigFormService implements IAgentConfigFormService {
 			'show_runtime_selector' => $showRuntimeSelector,
 			'runtime_active' => $runtimeActive,
 			'runtime_options' => $this->runtimeRegistry->getRuntimeOptions(),
-			'runtime_sections' => $sections
+			'runtime_sections' => $sections,
+			'translations' => $this->getTranslations()
 		]);
 	}
 
@@ -145,17 +151,61 @@ final class CompositeAgentConfigFormService implements IAgentConfigFormService {
 	private function resolvePostedRuntimeId(?string $runtimeId, array &$errors): string {
 		$runtimeId = $this->normalizeRuntimeId($runtimeId ?? (string)$this->request->request('agent_runtime', ''));
 		if ($runtimeId === '') {
-			$errors[] = 'Please select an agent runtime.';
+			$errors[] = $this->translate('select_runtime_error', 'Please select an agent runtime.');
 			return '';
 		}
 		if (!$this->runtimeRegistry->hasRuntime($runtimeId)) {
-			$errors[] = 'Selected agent runtime does not exist: ' . $runtimeId;
+			$errors[] = sprintf($this->translate('runtime_missing_error', 'Selected agent runtime does not exist: %s'), $runtimeId);
 			return '';
 		}
 
 		return $runtimeId;
 	}
 
+	/** @return array<string,string> */
+	private function getTranslations(): array {
+		if ($this->translations !== null) {
+			return $this->translations;
+		}
+
+		$language = strtolower(str_replace('_', '-', trim($this->language->getLanguage())));
+		$language = explode('-', $language)[0] ?? 'en';
+		if (!in_array($language, ['de', 'en', 'fr', 'es', 'ru'], true)) {
+			$language = 'en';
+		}
+
+		$basePath = defined('DIR_PLUGIN') ? DIR_PLUGIN . 'AssistantRuntime/lang/AgentRuntimeConfigForm/' : '';
+		$fallback = $basePath === '' ? [] : $this->readTranslationFile($basePath . 'en.ini');
+		$current = $language === 'en' || $basePath === ''
+			? []
+			: $this->readTranslationFile($basePath . $language . '.ini');
+		$this->translations = array_merge([
+			'agent_runtime_label' => 'Agent runtime',
+			'select_runtime_error' => 'Please select an agent runtime.',
+			'runtime_missing_error' => 'Selected agent runtime does not exist: %s'
+		], $fallback, $current);
+
+		return $this->translations;
+	}
+
+	private function translate(string $key, string $fallback): string {
+		$value = $this->getTranslations()[$key] ?? null;
+		return is_scalar($value) && trim((string)$value) !== ''
+			? trim((string)$value)
+			: $fallback;
+	}
+
+	/** @return array<string,string> */
+	private function readTranslationFile(string $filename): array {
+		if (!is_file($filename) || !is_readable($filename)) {
+			return [];
+		}
+
+		$data = parse_ini_file($filename, true);
+		$section = is_array($data['agent_runtime_config'] ?? null) ? $data['agent_runtime_config'] : [];
+
+		return array_filter($section, static fn($value): bool => is_scalar($value));
+	}
 	private function normalizeRuntimeId(string $runtimeId): string {
 		$runtimeId = strtolower(trim($runtimeId));
 
