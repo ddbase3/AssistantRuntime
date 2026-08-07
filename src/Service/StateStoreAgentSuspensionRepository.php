@@ -9,6 +9,7 @@ namespace AssistantRuntime\Service;
 use AssistantFoundation\Api\IAgentSuspensionRepository;
 use AssistantFoundation\Dto\AgentSuspension;
 use AssistantFoundation\Dto\AgentSuspensionClaim;
+use AssistantFoundation\Dto\AgentSuspensionState;
 use AssistantFoundation\Exception\AgentSuspensionRepositoryException;
 use Base3\State\Api\IStateStore;
 
@@ -17,7 +18,9 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 
 	private const STATE_PREFIX = 'assistant.agent.suspension.state.';
 	private const CLAIM_PREFIX = 'assistant.agent.suspension.claim.';
-	private const FORMAT_VERSION = 1;
+	private const FORMAT_VERSION = 2;
+	private const SCOPE_TOKEN_LENGTH = 21;
+	private const RESUME_HANDLE_LENGTH = 43;
 
 	public function __construct(
 		private readonly IStateStore $stateStore,
@@ -34,32 +37,55 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 			throw new \InvalidArgumentException('Agent suspension TTL must be greater than zero.');
 		}
 
-		for ($attempt = 0; $attempt < 3; $attempt++) {
-			$handle = $this->createOpaqueToken();
-			$reservationToken = $this->createOpaqueToken();
-			$now = time();
-			$stored = $this->stateStore->setIfNotExists($this->stateKey($handle), [
-				'format_version' => self::FORMAT_VERSION,
-				'reservation_token' => $reservationToken,
-				'created_at' => $now,
-				'expires_at' => $now + $ttlSeconds,
-				'suspension' => $suspension->toArray()
-			], $ttlSeconds);
+		$scopeId = trim($suspension->getScopeId());
+		if ($scopeId === '') {
+			$scopeId = $suspension->getId();
+		}
+		$scopeToken = $this->scopeToken($scopeId);
+		$resumeHandle = $scopeToken . substr($this->createOpaqueToken(), 0, self::RESUME_HANDLE_LENGTH - self::SCOPE_TOKEN_LENGTH);
+		$now = time();
+		$created = $this->stateStore->setIfNotExists($this->stateKey($scopeToken), [
+			'format_version' => self::FORMAT_VERSION,
+			'resume_handle' => $resumeHandle,
+			'created_at' => $now,
+			'expires_at' => $now + $ttlSeconds,
+			'suspension' => $suspension->toArray()
+		], $ttlSeconds);
+		if (!$created) {
+			throw new AgentSuspensionRepositoryException(
+				AgentSuspensionRepositoryException::REASON_INVALID_STATE,
+				'Agent suspension scope already has a pending suspension.'
+			);
+		}
+		$this->stateStore->flush();
 
-			if ($stored) {
-				$this->stateStore->flush();
-				return $handle;
-			}
+		return $resumeHandle;
+	}
+
+	public function findPending(string $scopeId): ?AgentSuspensionState {
+		$scopeId = trim($scopeId);
+		if ($scopeId === '') {
+			return null;
 		}
 
-		throw new AgentSuspensionRepositoryException(
-			AgentSuspensionRepositoryException::REASON_INVALID_STATE,
-			'Unable to allocate a unique agent resume handle.'
-		);
+		try {
+			[$resumeHandle, $suspension] = $this->readStoredSuspension($this->scopeToken($scopeId));
+			return new AgentSuspensionState(
+				true,
+				$suspension->getStatus(),
+				$suspension->getRequests(),
+				$resumeHandle
+			);
+		} catch (AgentSuspensionRepositoryException $e) {
+			if ($e->getReason() === AgentSuspensionRepositoryException::REASON_NOT_FOUND) {
+				return null;
+			}
+			throw $e;
+		}
 	}
 
 	public function claim(string $resumeHandle): AgentSuspensionClaim {
-		$this->assertHandle($resumeHandle);
+		$scopeToken = $this->scopeTokenFromHandle($resumeHandle);
 		$claimToken = $this->createOpaqueToken();
 		$claimKey = $this->claimKey($resumeHandle);
 		$claimed = $this->stateStore->setIfNotExists($claimKey, [
@@ -74,14 +100,22 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 			$reason = $status === 'consumed'
 				? AgentSuspensionRepositoryException::REASON_ALREADY_CONSUMED
 				: AgentSuspensionRepositoryException::REASON_ALREADY_CLAIMED;
-			$message = $status === 'consumed'
-				? 'Agent resume handle has already been consumed.'
-				: 'Agent resume handle is already being processed.';
-			throw new AgentSuspensionRepositoryException($reason, $message);
+			throw new AgentSuspensionRepositoryException(
+				$reason,
+				$status === 'consumed'
+					? 'Agent resume handle has already been consumed.'
+					: 'Agent resume handle is already being processed.'
+			);
 		}
 
 		try {
-			$suspension = $this->readSuspension($resumeHandle);
+			[$storedHandle, $suspension] = $this->readStoredSuspension($scopeToken);
+			if (!hash_equals($storedHandle, $resumeHandle)) {
+				throw new AgentSuspensionRepositoryException(
+					AgentSuspensionRepositoryException::REASON_NOT_FOUND,
+					'Agent resume handle was not found or has expired.'
+				);
+			}
 		} catch (\Throwable $e) {
 			$this->deleteClaimIfOwned($resumeHandle, $claimToken);
 			throw $e;
@@ -91,14 +125,14 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 	}
 
 	public function release(AgentSuspensionClaim $claim): void {
-		$this->assertHandle($claim->getResumeHandle());
+		$this->scopeTokenFromHandle($claim->getResumeHandle());
 		if ($this->deleteClaimIfOwned($claim->getResumeHandle(), $claim->getClaimToken())) {
 			$this->stateStore->flush();
 		}
 	}
 
 	public function consume(AgentSuspensionClaim $claim): void {
-		$this->assertHandle($claim->getResumeHandle());
+		$scopeToken = $this->scopeTokenFromHandle($claim->getResumeHandle());
 		$storedClaim = $this->stateStore->get($this->claimKey($claim->getResumeHandle()), []);
 		if (!$this->isOwnedActiveClaim($storedClaim, $claim->getClaimToken())) {
 			$status = is_array($storedClaim) ? (string)($storedClaim['status'] ?? '') : '';
@@ -111,7 +145,10 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 			);
 		}
 
-		$this->stateStore->delete($this->stateKey($claim->getResumeHandle()));
+		$stored = $this->stateStore->get($this->stateKey($scopeToken), []);
+		if (is_array($stored) && hash_equals((string)($stored['resume_handle'] ?? ''), $claim->getResumeHandle())) {
+			$this->stateStore->delete($this->stateKey($scopeToken));
+		}
 		$this->stateStore->set($this->claimKey($claim->getResumeHandle()), [
 			'status' => 'consumed',
 			'consumed_at' => time()
@@ -119,41 +156,40 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 		$this->stateStore->flush();
 	}
 
-	private function readSuspension(string $resumeHandle): AgentSuspension {
-		$stored = $this->stateStore->get($this->stateKey($resumeHandle));
+	/** @return array{0:string,1:AgentSuspension} */
+	private function readStoredSuspension(string $scopeToken): array {
+		$stateKey = $this->stateKey($scopeToken);
+		$stored = $this->stateStore->get($stateKey);
 		if (!is_array($stored)) {
 			throw new AgentSuspensionRepositoryException(
 				AgentSuspensionRepositoryException::REASON_NOT_FOUND,
 				'Agent resume handle was not found or has expired.'
 			);
 		}
-
 		if ((int)($stored['format_version'] ?? 0) !== self::FORMAT_VERSION) {
 			throw new AgentSuspensionRepositoryException(
 				AgentSuspensionRepositoryException::REASON_INVALID_STATE,
 				'Stored agent suspension uses an unsupported format version.'
 			);
 		}
-
 		$expiresAt = (int)($stored['expires_at'] ?? 0);
 		if ($expiresAt < 1 || $expiresAt <= time()) {
-			$this->stateStore->delete($this->stateKey($resumeHandle));
+			$this->stateStore->delete($stateKey);
 			throw new AgentSuspensionRepositoryException(
 				AgentSuspensionRepositoryException::REASON_NOT_FOUND,
 				'Agent resume handle was not found or has expired.'
 			);
 		}
-
+		$resumeHandle = trim((string)($stored['resume_handle'] ?? ''));
 		$payload = $stored['suspension'] ?? null;
-		if (!is_array($payload)) {
+		if ($resumeHandle === '' || !is_array($payload)) {
 			throw new AgentSuspensionRepositoryException(
 				AgentSuspensionRepositoryException::REASON_INVALID_STATE,
 				'Stored agent suspension payload is invalid.'
 			);
 		}
-
 		try {
-			return AgentSuspension::fromArray($payload);
+			return [$resumeHandle, AgentSuspension::fromArray($payload)];
 		} catch (\Throwable $e) {
 			throw new AgentSuspensionRepositoryException(
 				AgentSuspensionRepositoryException::REASON_INVALID_STATE,
@@ -169,7 +205,6 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 		if (!$this->isOwnedActiveClaim($storedClaim, $claimToken)) {
 			return false;
 		}
-
 		return $this->stateStore->delete($claimKey);
 	}
 
@@ -179,6 +214,21 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 		}
 		$storedToken = (string)($storedClaim['claim_token'] ?? '');
 		return $storedToken !== '' && hash_equals($storedToken, $claimToken);
+	}
+
+	private function scopeToken(string $scopeId): string {
+		$token = rtrim(strtr(base64_encode(hash('sha256', $scopeId, true)), '+/', '-_'), '=');
+		return substr($token, 0, self::SCOPE_TOKEN_LENGTH);
+	}
+
+	private function scopeTokenFromHandle(string $resumeHandle): string {
+		if (preg_match('/^[A-Za-z0-9_-]{' . self::RESUME_HANDLE_LENGTH . '}$/', $resumeHandle) !== 1) {
+			throw new AgentSuspensionRepositoryException(
+				AgentSuspensionRepositoryException::REASON_INVALID_HANDLE,
+				'Agent resume handle has an invalid format.'
+			);
+		}
+		return substr($resumeHandle, 0, self::SCOPE_TOKEN_LENGTH);
 	}
 
 	private function createOpaqueToken(): string {
@@ -191,21 +241,11 @@ final class StateStoreAgentSuspensionRepository implements IAgentSuspensionRepos
 				$e
 			);
 		}
-
 		return rtrim(strtr(base64_encode($bytes), '+/', '-_'), '=');
 	}
 
-	private function assertHandle(string $resumeHandle): void {
-		if (!preg_match('/^[A-Za-z0-9_-]{43}$/', $resumeHandle)) {
-			throw new AgentSuspensionRepositoryException(
-				AgentSuspensionRepositoryException::REASON_INVALID_HANDLE,
-				'Agent resume handle has an invalid format.'
-			);
-		}
-	}
-
-	private function stateKey(string $resumeHandle): string {
-		return self::STATE_PREFIX . hash('sha256', $resumeHandle);
+	private function stateKey(string $scopeToken): string {
+		return self::STATE_PREFIX . $scopeToken;
 	}
 
 	private function claimKey(string $resumeHandle): string {
