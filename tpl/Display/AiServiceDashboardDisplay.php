@@ -18,6 +18,13 @@ function icon_status($type) {
 	}
 }
 ?>
+<?php
+$translations = is_array($this->_['translations'] ?? null) ? $this->_['translations'] : [];
+$t = static function(string $key, string $fallback) use ($translations): string {
+	$value = $translations[$key] ?? null;
+	return is_scalar($value) && trim((string)$value) !== '' ? trim((string)$value) : $fallback;
+};
+?>
 
 <section class="ai-dashboard">
 
@@ -38,17 +45,17 @@ function icon_status($type) {
 					</div>
 
 					<div class="meta">
-						<div>Endpoint: <?php echo htmlspecialchars($service['endpointShort']); ?></div>
-						<div>API Key: <?php echo htmlspecialchars($service['apikeyShort']); ?></div>
+						<div><?php echo htmlspecialchars($t('dashboard_endpoint', 'Endpoint')); ?>: <?php echo htmlspecialchars($service['endpointShort']); ?></div>
+						<div><?php echo htmlspecialchars($t('dashboard_api_key', 'API Key')); ?>: <?php echo htmlspecialchars($service['apikeyShort']); ?></div>
 					</div>
 
 					<div class="status-line">
 						<?php echo icon_status('idle'); ?>
-						<span class="status-text">Idle</span>
+						<span class="status-text"><?php echo htmlspecialchars($t('dashboard_idle', 'Idle')); ?></span>
 					</div>
 
 					<button type="button" class="test-button" data-service="<?php echo $service['id']; ?>">
-						Test Connection
+						<?php echo htmlspecialchars($t('dashboard_test_connection', 'Test Connection')); ?>
 					</button>
 
 				</div>
@@ -166,6 +173,14 @@ function icon_status($type) {
 <script>
 function AiDashboardInit() {
 
+	const strings = <?php echo json_encode([
+		'idle' => $t('dashboard_idle', 'Idle'),
+		'testing' => $t('dashboard_testing', 'Testing...'),
+		'ok' => $t('dashboard_ok', 'OK'),
+		'invalidApiKey' => $t('dashboard_invalid_api_key', 'Invalid API Key'),
+		'error' => $t('dashboard_error', 'Error')
+	], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+
 	document.addEventListener("click", function(e) {
 		let btn = e.target.closest(".test-button");
 		if (!btn) return;
@@ -173,24 +188,24 @@ function AiDashboardInit() {
 		let service = btn.dataset.service;
 		let card = btn.closest(".card");
 
-		updateStatus(card, "idle", "Testing...");
+		updateStatus(card, "idle", strings.testing);
 
 		fetch("?name=aiservicedashboarddisplay&action=test&service=" + encodeURIComponent(service))
 			.then(r => r.json())
 			.then(data => {
 
 				if (data.ok && data.apikey_valid) {
-					updateStatus(card, "ok", "OK");
+					updateStatus(card, "ok", strings.ok);
 				}
 				else if (data.apikey_valid === false) {
-					updateStatus(card, "invalid", "Invalid API Key");
+					updateStatus(card, "invalid", strings.invalidApiKey);
 				}
 				else {
-					updateStatus(card, "error", data.message || "Error");
+					updateStatus(card, "error", strings.error);
 				}
 			})
 			.catch(err => {
-				updateStatus(card, "error", err.toString());
+				updateStatus(card, "error", strings.error);
 			});
 	});
 }

@@ -30,6 +30,9 @@ class AiServiceDashboardDisplay implements IDisplay {
 
 	private array $credentialKeys = ['apikey', 'bottoken', 'token', 'access_token', 'key', 'secret'];
 
+	/** @var array<string,string> */
+	private array $translations = [];
+
 	public function __construct(
 		private readonly IMvcView $view,
 		private readonly IConfiguration $config,
@@ -46,6 +49,7 @@ class AiServiceDashboardDisplay implements IDisplay {
 	}
 
 	public function getOutput(string $out = 'html', bool $final = false): string {
+		$this->prepareTranslations();
 		$action = (string)$this->request->get('action', '');
 
 		if ($action === 'test') {
@@ -63,9 +67,9 @@ class AiServiceDashboardDisplay implements IDisplay {
 			return json_encode($groups);
 		}
 
-		$this->view->setPath(DIR_PLUGIN . 'AssistantRuntime');
 		$this->view->setTemplate('Display/AiServiceDashboardDisplay.php');
 		$this->view->assign('groups', $groups);
+		$this->view->assign('translations', $this->translations);
 
 		return $this->view->loadTemplate();
 	}
@@ -85,7 +89,7 @@ class AiServiceDashboardDisplay implements IDisplay {
 			$list = $this->collectServicesFlat($config, $testerMap);
 			return [[
 				'id' => 'services',
-				'name' => 'Services',
+				'name' => $this->translate('dashboard_group_services', 'Services'),
 				'services' => $list
 			]];
 		}
@@ -175,17 +179,17 @@ class AiServiceDashboardDisplay implements IDisplay {
 
 	private function runServiceTest(string $service): array {
 		if (!$service) {
-			return ['ok' => false, 'apikey_valid' => false, 'message' => 'Missing service'];
+			return ['ok' => false, 'apikey_valid' => false, 'message' => $this->translate('dashboard_missing_service', 'Missing service')];
 		}
 
 		$cfg = $this->config->get();
 		if (!isset($cfg[$service]) || !is_array($cfg[$service])) {
-			return ['ok' => false, 'apikey_valid' => false, 'message' => 'Unknown service'];
+			return ['ok' => false, 'apikey_valid' => false, 'message' => $this->translate('dashboard_unknown_service', 'Unknown service')];
 		}
 
 		$testerMap = $this->collectTesterMap();
 		if (!isset($testerMap[$service])) {
-			return ['ok' => false, 'apikey_valid' => false, 'message' => 'No tester available'];
+			return ['ok' => false, 'apikey_valid' => false, 'message' => $this->translate('dashboard_no_tester', 'No tester available')];
 		}
 
 		return $testerMap[$service]->test($cfg[$service]);
@@ -194,11 +198,11 @@ class AiServiceDashboardDisplay implements IDisplay {
 	private function prettyGroupName(string $id): string {
 		$map = [
 			'llm' => 'LLM',
-			'embedding' => 'Embeddings',
-			'vectordb' => 'Vector DB',
-			'translation' => 'Translation',
-			'parser' => 'Parser',
-			'communication' => 'Communication'
+			'embedding' => $this->translate('dashboard_group_embeddings', 'Embeddings'),
+			'vectordb' => $this->translate('dashboard_group_vector_db', 'Vector DB'),
+			'translation' => $this->translate('dashboard_group_translation', 'Translation'),
+			'parser' => $this->translate('dashboard_group_parser', 'Parser'),
+			'communication' => $this->translate('dashboard_group_communication', 'Communication')
 		];
 
 		if (isset($map[$id])) return $map[$id];
@@ -225,6 +229,21 @@ class AiServiceDashboardDisplay implements IDisplay {
 
 		$id = str_replace(['-', '_'], ' ', $id);
 		return ucwords($id);
+	}
+
+
+	private function prepareTranslations(): void {
+		$this->view->setPath(DIR_PLUGIN . 'AssistantRuntime');
+		$this->view->loadBricks('AgentRuntimeConfigForm');
+		$translations = $this->view->getBricks('assistant_runtime_dashboard');
+		$this->translations = is_array($translations) ? $translations : [];
+	}
+
+	private function translate(string $key, string $fallback): string {
+		$value = $this->translations[$key] ?? null;
+		return is_scalar($value) && trim((string)$value) !== ''
+			? trim((string)$value)
+			: $fallback;
 	}
 
 	private function shortEndpoint(string $url): string {
