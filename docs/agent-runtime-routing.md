@@ -34,3 +34,16 @@ Legacy `service` settings are converted to `chatbot_backend` on the next save.
 Admin or be controlled by an external selector for Chatbot. It accepts an
 explicit runtime ID for request parsing, so server-side validation does not rely
 on JavaScript-updated hidden fields.
+
+
+## Current routing services
+
+The current implementation provides three parallel routers:
+
+* `RoutingAgentExecutionService`
+* `RoutingAgentConversationService`
+* `RoutingAgentTextTaskService`
+
+All three use the same `IAgentRuntimeSelector` and `IAgentRuntimeRegistry`. This avoids separate runtime-selection rules for chat execution, conversation management, and isolated tasks.
+
+`StrictAgentRuntimeSelector` validates the configured runtime id. `PreferredAgentRuntimeSelector` only changes the preferred default id and does not introduce a fallback chain.

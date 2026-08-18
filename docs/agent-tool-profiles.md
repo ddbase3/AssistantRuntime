@@ -76,3 +76,12 @@ use it for call identity, display labels and loop counters. Provider-owned tool
 sets merge these values with their run-local context before invoking the
 concrete tool. This keeps audit concerns out of tool implementations and avoids
 a second execution-context abstraction.
+
+
+## Aggregation service
+
+`AgentToolProfileService` discovers `IAgentToolProfileProvider` implementations through `IClassMap`. It validates profile ownership and resolves selected profile ids into tool sets.
+
+When several resolved sets are active, `CompositeAgentToolSet` merges catalogs and warnings and routes execution to the set that owns the requested function. Confirmable sets also participate in suspension preparation and resume.
+
+This aggregation is runtime-neutral. MissionBay implements its own provider and preset materialization behind the shared contract.
