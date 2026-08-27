@@ -140,9 +140,10 @@ Source: `src/Service/StateStoreAgentSuspensionRepository.php`.
 * `__construct(private readonly IStateStore $stateStore, private readonly int $claimTtlSeconds = 30, private readonly int $replayTtlSeconds = 86400)`
 * `create(AgentSuspension $suspension, int $ttlSeconds) : string`
 * `findPending(string $scopeId) : ?AgentSuspensionState`
+* `findAll(string $scopeId) : array`
 * `claim(string $resumeHandle) : AgentSuspensionClaim`
 * `release(AgentSuspensionClaim $claim) : void`
-* `consume(AgentSuspensionClaim $claim) : void`
+* `consume(AgentSuspensionClaim $claim, ?AgentSuspensionResolution $resolution = null) : void`
 
 ### `StrictAgentRuntimeSelector`
 

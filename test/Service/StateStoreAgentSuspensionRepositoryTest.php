@@ -5,7 +5,10 @@ namespace AssistantRuntime\Test\Service;
 use AssistantFoundation\Dto\AgentAction;
 use AssistantFoundation\Dto\AgentExecutionStatus;
 use AssistantFoundation\Dto\AgentInteractionRequest;
+use AssistantFoundation\Dto\AgentInteractionResponse;
 use AssistantFoundation\Dto\AgentSuspension;
+use AssistantFoundation\Dto\AgentSuspensionResolution;
+use AssistantFoundation\Dto\AgentSuspensionState;
 use AssistantFoundation\Exception\AgentSuspensionRepositoryException;
 use AssistantRuntime\Service\StateStoreAgentSuspensionRepository;
 use Base3\State\Api\IStateStore;
@@ -33,6 +36,30 @@ final class StateStoreAgentSuspensionRepositoryTest extends TestCase {
 		$repository->consume($claim);
 
 		$this->assertNull($repository->findPending('conversation:scope-1'));
+	}
+
+
+	public function testResolvedSuspensionRemainsAvailableAsTerminalHistory(): void {
+		$repository = new StateStoreAgentSuspensionRepository(new SuspensionMemoryStateStore());
+		$suspension = $this->suspension('susp-history', 'conversation:scope-history');
+		$handle = $repository->create($suspension, 900);
+		$claim = $repository->claim($handle);
+		$repository->consume($claim, new AgentSuspensionResolution([
+			new AgentInteractionResponse('air-1', AgentInteractionResponse::DECISION_APPROVE)
+		], 'explicit', '2026-08-27T07:05:00+00:00'));
+
+		$history = $repository->findAll('conversation:scope-history');
+
+		$this->assertCount(1, $history);
+		$this->assertSame('susp-history', $history[0]->getId());
+		$this->assertSame(AgentSuspensionState::LIFECYCLE_RESOLVED, $history[0]->getLifecycle());
+		$this->assertFalse($history[0]->isSuspended());
+		$this->assertSame('', $history[0]->getResumeHandle());
+		$this->assertSame(AgentSuspensionResolution::OUTCOME_APPROVED, $history[0]->getResolution()?->getOutcome());
+		$this->assertSame('explicit', $history[0]->getResolution()?->getSource());
+		$this->assertSame([], $history[0]->getResolution()?->getResponses()[0]->getInput());
+		$this->assertSame('air-1', $history[0]->getInteractionRequests()[0]['id'] ?? null);
+		$this->assertArrayNotHasKey('metadata', $history[0]->getInteractionRequests()[0] ?? []);
 	}
 
 	public function testSecondPendingSuspensionForTheSameScopeIsRejected(): void {
