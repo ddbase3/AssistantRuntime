@@ -89,6 +89,9 @@ This is the reason a host can render one agent configuration UI without importin
 
 ## Documentation
 
+* [FAQ](docs/faq.md)
+* [Privacy and data processing](PRIVACY.md)
+
 * [overview](docs/overview.md)
 * [agent runtime routing](docs/agent-runtime-routing.md)
 * [agent tool profiles](docs/agent-tool-profiles.md)
