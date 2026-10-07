@@ -1,0 +1,20 @@
+{
+	"manifestVersion": 1,
+	"name": "AssistantRuntime",
+	"namespace": "AssistantRuntime",
+	"version": "4.5.0",
+	"description": "Shared runtime composition and routing services for BASE3 assistant runtimes.",
+	"license": "GPL-3.0-or-later",
+	"maintainers": [
+		{
+			"name": "Daniel Dahme",
+			"url": "https://www.base3.de",
+			"email": "info@base3.de"
+		}
+	],
+	"repository": "https://github.com/ddbase3/AssistantRuntime",
+	"dependencies": {
+		"Base3Framework": ">=4.10.0",
+		"AssistantFoundation": ">=4.17.0"
+	}
+}
