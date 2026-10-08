@@ -135,7 +135,7 @@ final class CompositeAgentConfigFormService implements IAgentConfigFormService {
 			];
 		}
 
-		$view->assign('agent_config_template', DIR_PLUGIN . 'AssistantRuntime/tpl/Content/AgentRuntimeConfigFormSection.php');
+		$view->assign('agent_config_template', dirname(__DIR__, 2) . '/tpl/Content/AgentRuntimeConfigFormSection.php');
 		$view->assign('agent_config_form', [
 			'form_id' => $formId,
 			'selected_runtime' => $runtimeId,
@@ -174,7 +174,7 @@ final class CompositeAgentConfigFormService implements IAgentConfigFormService {
 			$language = 'en';
 		}
 
-		$basePath = defined('DIR_PLUGIN') ? DIR_PLUGIN . 'AssistantRuntime/lang/AgentRuntimeConfigForm/' : '';
+		$basePath = dirname(__DIR__, 2) . '/lang/AgentRuntimeConfigForm/';
 		$fallback = $basePath === '' ? [] : $this->readTranslationFile($basePath . 'en.ini');
 		$current = $language === 'en' || $basePath === ''
 			? []

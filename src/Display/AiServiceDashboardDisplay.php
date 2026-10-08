@@ -233,7 +233,7 @@ class AiServiceDashboardDisplay implements IDisplay {
 
 
 	private function prepareTranslations(): void {
-		$this->view->setPath(DIR_PLUGIN . 'AssistantRuntime');
+		$this->view->setPath(dirname(__DIR__, 2));
 		$this->view->loadBricks('AgentRuntimeConfigForm');
 		$translations = $this->view->getBricks('assistant_runtime_dashboard');
 		$this->translations = is_array($translations) ? $translations : [];
