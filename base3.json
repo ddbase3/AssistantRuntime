@@ -15,6 +15,7 @@
 	"repository": "https://github.com/ddbase3/AssistantRuntime",
 	"dependencies": {
 		"Base3Framework": ">=4.10.0",
-		"AssistantFoundation": ">=4.17.0"
+		"AssistantFoundation": ">=4.17.0",
+		"UiFoundation": ">=4.3.0"
 	}
 }

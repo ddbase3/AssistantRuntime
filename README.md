@@ -104,3 +104,9 @@ This is the reason a host can render one agent configuration UI without importin
 ## License
 
 GPL-3.0.
+
+## Discoverable AI service settings
+
+`AiServicesSettingsTab` contributes a first-level Settings group and `AiServiceDashboardSettingsTab` provides the service dashboard. The latter implements the existing `IFeature` mechanism, defaults to the `administration` audience, and protects the direct dashboard endpoint through `IAuthorizationService`. All labels and descriptions reside in `AssistantRuntime/lang/Settings/`.
+
+Connection tests now use POST with a session-bound CSRF token and the framework link-target service, not GET query parameters or a host-specific route. Tests run only with a positive feature decision. The page continues to mask credentials in rendered output and delegates provider connectivity checks to installed `IAiServiceTester` components.

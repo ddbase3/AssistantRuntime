@@ -20,11 +20,19 @@ namespace AssistantRuntime\Display;
 use Base3\Api\IDisplay;
 use Base3\Api\IMvcView;
 use Base3\Api\IRequest;
+use Base3\Authorization\Api\IAuthorizationService;
+use Base3\Authorization\Dto\AuthorizationRequest;
+use Base3\Usermanager\Permission;
+use AssistantRuntime\SettingsTab\AiServiceDashboardSettingsTab;
 use Base3\Configuration\Api\IConfiguration;
 use Base3\Api\IClassMap;
+use Base3\LinkTarget\Api\ILinkTargetService;
+use Base3\Session\Api\ISession;
 use AssistantFoundation\Api\IAiServiceTester;
 
 class AiServiceDashboardDisplay implements IDisplay {
+
+	private const CSRF_KEY = 'assistant_runtime.services.csrf';
 
 	private $data;
 
@@ -37,7 +45,10 @@ class AiServiceDashboardDisplay implements IDisplay {
 		private readonly IMvcView $view,
 		private readonly IConfiguration $config,
 		private readonly IRequest $request,
-		private readonly IClassMap $classmap
+		private readonly IClassMap $classmap,
+		private readonly IAuthorizationService $authorization,
+		private readonly ISession $session,
+		private readonly ILinkTargetService $links
 	) {}
 
 	public static function getName(): string {
@@ -49,13 +60,25 @@ class AiServiceDashboardDisplay implements IDisplay {
 	}
 
 	public function getOutput(string $out = 'html', bool $final = false): string {
+		if (!$this->authorization->decide(new AuthorizationRequest(
+			$this->authorization->getDefaultAuthority(),
+			Permission::for('feature', AiServiceDashboardSettingsTab::getName())
+		))->isAllowed()) {
+			http_response_code(403);
+			return '';
+		}
 		$this->prepareTranslations();
-		$action = (string)$this->request->get('action', '');
+		$action = (string)$this->request->post('action', '');
 
 		if ($action === 'test') {
-			$service = (string)$this->request->get('service', '');
+			if (strtoupper((string)$this->request->server('REQUEST_METHOD', '')) !== 'POST'
+				|| !$this->validCsrfToken()) {
+				http_response_code(403);
+				return json_encode(['ok' => false, 'apikey_valid' => false]);
+			}
+			$service = (string)$this->request->post('service', '');
 			$result = $this->runServiceTest($service);
-			header('Content-Type: application/json');
+			if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
 			return json_encode($result);
 		}
 
@@ -70,12 +93,32 @@ class AiServiceDashboardDisplay implements IDisplay {
 		$this->view->setTemplate('Display/AiServiceDashboardDisplay.php');
 		$this->view->assign('groups', $groups);
 		$this->view->assign('translations', $this->translations);
+		$this->view->assign('csrf', $this->csrfToken());
+		$this->view->assign('testUrl', $this->links->getLink(['name' => self::getName(), 'out' => 'json']));
 
 		return $this->view->loadTemplate();
 	}
 
 	public function getHelp(): string {
 		return 'Displays AI services and provides API key validation tests.';
+	}
+
+	private function csrfToken(): string {
+		if (!$this->session->started()) {
+			throw new \RuntimeException('An active session is required to test AI service connections.');
+		}
+		$token = $this->session->get(self::CSRF_KEY);
+		if (!is_string($token) || strlen($token) !== 64) {
+			$token = bin2hex(random_bytes(32));
+			$this->session->set(self::CSRF_KEY, $token);
+		}
+		return $token;
+	}
+
+	private function validCsrfToken(): bool {
+		$expected = $this->session->get(self::CSRF_KEY);
+		$received = $this->request->post('ai_service_csrf', '');
+		return is_string($expected) && is_string($received) && hash_equals($expected, $received);
 	}
 
 	private function collectServicesGrouped(): array {

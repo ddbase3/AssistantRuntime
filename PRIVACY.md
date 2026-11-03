@@ -298,3 +298,7 @@ Before production use, review and document:
 ## 18. Component boundary
 
 This document describes AssistantRuntime only. Concrete agent runtimes, AI providers, retrieval systems, tool implementations, conversation stores, user interfaces, and host applications introduce additional processing and should maintain their own component-level privacy documentation.
+
+## Settings dashboard access and request protection
+
+The discoverable AI service dashboard renders only after an explicit allow for the `aiservicedashboardsettingstab` feature. Tests of configured external services are issued by an authenticated, feature-authorized request using POST and a random 32-byte, session-bound CSRF token. The token is saved under `assistant_runtime.services.csrf` in the active `ISession`; its lifecycle follows the host session. The dashboard does not persist service test results. A selected `IAiServiceTester` may transfer the service-specific configuration to an external provider as documented by that tester. Endpoint and credential previews remain shortened and masked; actual testing can involve provider secrets and must be limited to permitted users.

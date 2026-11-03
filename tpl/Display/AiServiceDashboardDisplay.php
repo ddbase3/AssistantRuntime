@@ -173,6 +173,9 @@ $t = static function(string $key, string $fallback) use ($translations): string 
 <script>
 function AiDashboardInit() {
 
+	const testUrl = <?php echo json_encode((string)$this->_['testUrl'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+	const csrf = <?php echo json_encode((string)$this->_['csrf'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+
 	const strings = <?php echo json_encode([
 		'idle' => $t('dashboard_idle', 'Idle'),
 		'testing' => $t('dashboard_testing', 'Testing...'),
@@ -190,7 +193,12 @@ function AiDashboardInit() {
 
 		updateStatus(card, "idle", strings.testing);
 
-		fetch("?name=aiservicedashboarddisplay&action=test&service=" + encodeURIComponent(service))
+		fetch(testUrl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+			body: new URLSearchParams({ action: 'test', service: service, ai_service_csrf: csrf }).toString()
+		})
 			.then(r => r.json())
 			.then(data => {
 
