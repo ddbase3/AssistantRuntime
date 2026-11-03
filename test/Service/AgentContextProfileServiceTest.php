@@ -13,18 +13,8 @@ use PHPUnit\Framework\TestCase;
 final class AgentContextProfileServiceTest extends TestCase {
 
 	public function testDiscoversAndBuildsOneProfile(): void {
-		$provider = new class implements IAgentContextProfileProvider {
-			public static function getName(): string { return 'testcontextprofileprovider'; }
-			public static function getProviderId(): string { return 'test'; }
-			public function getOptions(): array { return [['id' => 'profile', 'label' => 'Profile']]; }
-			public function hasProfile(string $profileId): bool { return $profileId === 'profile'; }
-			public function build(string $profileId, AgentExecutionRequest $request): AgentContextProfileResult {
-				return new AgentContextProfileResult($profileId, [
-					new AgentInstructionBlock('block', 'Context')
-				]);
-			}
-		};
-		$classMap = $this->createMock(IClassMap::class);
+		$provider = new AgentContextProfileServiceTestDouble1();
+		$classMap = $this->createStub(IClassMap::class);
 		$classMap->method('getInstancesByInterface')
 			->with(IAgentContextProfileProvider::class)
 			->willReturn([$provider]);
@@ -48,3 +38,5 @@ final class AgentContextProfileServiceTest extends TestCase {
 		self::assertSame([], $result->getBlocks());
 	}
 }
+
+require_once __DIR__ . '/AgentContextProfileServiceTestDouble1.php';

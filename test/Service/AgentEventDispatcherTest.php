@@ -25,7 +25,7 @@ final class AgentEventDispatcherTest extends TestCase {
 
 	public function testFromContextReturnsOnlyEventSinkInstances(): void {
 		$sink = $this->createStub(IAgentEventSink::class);
-		$context = $this->createMock(IAgentContext::class);
+		$context = $this->createStub(IAgentContext::class);
 		$context->method('getVar')->with(IAgentEventSink::CONTEXT_KEY)->willReturn($sink);
 
 		$this->assertSame($sink, AgentEventDispatcher::fromContext($context));

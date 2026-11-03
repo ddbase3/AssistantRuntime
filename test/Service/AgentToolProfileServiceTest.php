@@ -17,30 +17,8 @@ final class AgentToolProfileServiceTest extends TestCase {
 	public function testDiscoversAndCombinesSelectedProfiles(): void {
 		$firstSet = $this->createToolSet('first_tool');
 		$secondSet = $this->createToolSet('second_tool');
-		$provider = new class($firstSet, $secondSet) implements IAgentToolProfileProvider {
-			public function __construct(
-				private readonly IAgentToolSet $first,
-				private readonly IAgentToolSet $second
-			) {}
-			public static function getName(): string { return 'testtoolprofileprovider'; }
-			public static function getProviderId(): string { return 'test'; }
-			public function getOptions(): array {
-				return [
-					['id' => 'first', 'label' => 'First'],
-					['id' => 'second', 'label' => 'Second']
-				];
-			}
-			public function hasProfile(string $profileId): bool {
-				return in_array($profileId, ['first', 'second'], true);
-			}
-			public function resolve(array $profileIds, AgentExecutionRequest $request): IAgentToolSet {
-				$sets = [];
-				if (in_array('first', $profileIds, true)) $sets[] = $this->first;
-				if (in_array('second', $profileIds, true)) $sets[] = $this->second;
-				return new \AssistantRuntime\Service\CompositeAgentToolSet($sets);
-			}
-		};
-		$classMap = $this->createMock(IClassMap::class);
+		$provider = new AgentToolProfileServiceTestDouble1($firstSet, $secondSet);
+		$classMap = $this->createStub(IClassMap::class);
 		$classMap->method('getInstancesByInterface')
 			->with(IAgentToolProfileProvider::class)
 			->willReturn([$provider]);
@@ -77,16 +55,10 @@ final class AgentToolProfileServiceTest extends TestCase {
 			]
 		);
 
-		return new class($capability) implements IAgentToolSet {
-			private AgentCapabilityCatalog $catalog;
-			public function __construct(AgentCapability $capability) {
-				$this->catalog = new AgentCapabilityCatalog([$capability]);
-			}
-			public function getCatalog(): AgentCapabilityCatalog { return $this->catalog; }
-			public function getWarnings(): array { return []; }
-			public function execute(string $callId, string $toolName, array $arguments, array $metadata = []): AgentToolResult {
-				return AgentToolResult::success($callId, $toolName, $arguments, $arguments);
-			}
-		};
+		return new AgentToolProfileServiceTestDouble2($capability);
 	}
 }
+
+require_once __DIR__ . '/AgentToolProfileServiceTestDouble1.php';
+
+require_once __DIR__ . '/AgentToolProfileServiceTestDouble2.php';

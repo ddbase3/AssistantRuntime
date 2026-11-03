@@ -49,13 +49,4 @@ final class AgentRuntimeConfigFormTemplateTest extends TestCase {
 	}
 }
 
-final class AgentRuntimeTemplateRenderer {
-
-	public function __construct(public array $_) {}
-
-	public function render(string $template): string {
-		ob_start();
-		include $template;
-		return (string)ob_get_clean();
-	}
-}
+require_once __DIR__ . '/AgentRuntimeTemplateRenderer.php';

@@ -94,29 +94,4 @@ final class CompositeAgentConfigFormServiceTest extends TestCase {
 	}
 }
 
-final class RuntimeFormFakeView implements IMvcView {
-
-	private array $assigned = [];
-
-	public function setPath(string $path = '.'): void {}
-
-	public function assign(string $key, $value): void {
-		$this->assigned[$key] = $value;
-	}
-
-	public function setTemplate(string $template = 'default'): void {}
-
-	public function loadTemplate(): string {
-		return '';
-	}
-
-	public function loadBricks(string $set, string $language = ''): void {}
-
-	public function getBricks(string $set): ?array {
-		return null;
-	}
-
-	public function getAssigned(string $key): mixed {
-		return $this->assigned[$key] ?? null;
-	}
-}
+require_once __DIR__ . '/RuntimeFormFakeView.php';
