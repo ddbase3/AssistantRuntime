@@ -194,3 +194,11 @@ final class AgentRuntimeRegistryTest extends TestCase {
 		return new AgentRuntimeRegistry($classMap);
 	}
 }
+require_once __DIR__ . '/Fixtures/AlphaRuntimeExecutionFixture.php';
+require_once __DIR__ . '/Fixtures/AlphaRuntimeFormFixture.php';
+require_once __DIR__ . '/Fixtures/AlphaRuntimeConversationFixture.php';
+require_once __DIR__ . '/Fixtures/AlphaRuntimeTextTaskFixture.php';
+require_once __DIR__ . '/Fixtures/BetaRuntimeExecutionFixture.php';
+require_once __DIR__ . '/Fixtures/BetaRuntimeFormFixture.php';
+require_once __DIR__ . '/Fixtures/CollisionRuntimeExecutionFixture.php';
+require_once __DIR__ . '/Fixtures/EmptyIdRuntimeExecutionFixture.php';

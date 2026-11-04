@@ -226,3 +226,5 @@ final class AiServiceDashboardDisplayBehaviorTest extends TestCase {
 		return (new ReflectionMethod(AiServiceDashboardDisplay::class, $method))->invoke($display, ...$args);
 	}
 }
+require_once __DIR__ . '/Fixtures/ApiKeyDashboardTester.php';
+require_once __DIR__ . '/Fixtures/TranslationDashboardTester.php';

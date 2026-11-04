@@ -75,3 +75,4 @@ final class AgentContextProfileServiceEdgeCasesTest extends TestCase {
 }
 
 require_once __DIR__ . '/AgentContextProfileServiceTestDouble1.php';
+require_once __DIR__ . '/Fixtures/OtherContextProfileFixture.php';

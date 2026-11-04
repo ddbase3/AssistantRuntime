@@ -78,3 +78,4 @@ final class AgentToolProfileServiceEdgeCasesTest extends TestCase {
 
 require_once __DIR__ . '/AgentToolProfileServiceTestDouble1.php';
 require_once __DIR__ . '/AgentToolProfileServiceTestDouble2.php';
+require_once __DIR__ . '/Fixtures/OtherToolProfileFixture.php';
