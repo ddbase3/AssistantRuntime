@@ -23,7 +23,7 @@ use Base3\Api\IRequest;
 use Base3\Authorization\Api\IAuthorizationService;
 use Base3\Authorization\Dto\AuthorizationRequest;
 use Base3\Usermanager\Permission;
-use AssistantRuntime\SettingsTab\AiServiceDashboardSettingsTab;
+use AssistantRuntime\Feature\AiServiceDashboardFeature;
 use Base3\Configuration\Api\IConfiguration;
 use Base3\Api\IClassMap;
 use Base3\LinkTarget\Api\ILinkTargetService;
@@ -62,7 +62,7 @@ class AiServiceDashboardDisplay implements IDisplay {
 	public function getOutput(string $out = 'html', bool $final = false): string {
 		if (!$this->authorization->decide(new AuthorizationRequest(
 			$this->authorization->getDefaultAuthority(),
-			Permission::for('feature', AiServiceDashboardSettingsTab::getName())
+			Permission::for('feature', AiServiceDashboardFeature::getName())
 		))->isAllowed()) {
 			http_response_code(403);
 			return '';

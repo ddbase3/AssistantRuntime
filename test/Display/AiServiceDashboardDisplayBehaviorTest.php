@@ -3,6 +3,8 @@
 namespace AssistantRuntime\Test\Display;
 
 use AssistantRuntime\Display\AiServiceDashboardDisplay;
+use AssistantRuntime\Feature\AiServiceDashboardFeature;
+use Base3\Authorization\Dto\AuthorizationDecision;
 use AssistantRuntime\Test\Display\Fixtures\ApiKeyDashboardTester;
 use AssistantRuntime\Test\Display\Fixtures\TranslationDashboardTester;
 use Base3\Api\IClassMap;
@@ -17,6 +19,25 @@ use ReflectionMethod;
 use RuntimeException;
 
 final class AiServiceDashboardDisplayBehaviorTest extends TestCase {
+
+	public function testDeniedDashboardRequestNeverReadsServiceConfiguration(): void {
+		$authorization = $this->createStub(IAuthorizationService::class);
+		$authorization->method('getDefaultAuthority')->willReturn('ilias');
+		$authorization->method('decide')->willReturn(AuthorizationDecision::deny());
+		$config = $this->createMock(IConfiguration::class);
+		$config->expects($this->never())->method('get');
+		$previousStatus = http_response_code();
+		try {
+			self::assertSame('', $this->display(config: $config, authorization: $authorization)->getOutput());
+		} finally {
+			http_response_code($previousStatus ?: 200);
+		}
+	}
+
+	public function testDashboardPermissionIsOwnedByAFeatureWithoutSettingsNavigation(): void {
+		self::assertSame('aiservicedashboardfeature', AiServiceDashboardFeature::getName());
+		self::assertSame('aiservicedashboarddisplay', AiServiceDashboardDisplay::getName());
+	}
 
 	public function testTechnicalIdentityAndHelpDescribeExistingDisplay(): void {
 		$this->assertSame('aiservicedashboarddisplay', AiServiceDashboardDisplay::getName());
@@ -203,7 +224,8 @@ final class AiServiceDashboardDisplayBehaviorTest extends TestCase {
 		?IConfiguration $config = null,
 		?IRequest $request = null,
 		?ISession $session = null,
-		array $testers = []
+		array $testers = [],
+		?IAuthorizationService $authorization = null
 	): AiServiceDashboardDisplay {
 		$view ??= $this->createStub(IMvcView::class);
 		$config ??= $this->createStub(IConfiguration::class);
@@ -216,7 +238,7 @@ final class AiServiceDashboardDisplayBehaviorTest extends TestCase {
 			$config,
 			$request,
 			$classmap,
-			$this->createStub(IAuthorizationService::class),
+			$authorization ?? $this->createStub(IAuthorizationService::class),
 			$session,
 			$this->createStub(ILinkTargetService::class)
 		);
