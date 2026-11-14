@@ -12,32 +12,32 @@
  * https://www.gnu.org/licenses/gpl-3.0.en.html
  **********************************************************************/
 
-namespace AssistantRuntime;
+namespace Base3\AssistantRuntime;
 
-use AssistantFoundation\Api\IAgentConfigFormService;
-use AssistantFoundation\Api\IAgentConversationService;
-use AssistantFoundation\Api\IAgentContextProfileService;
-use AssistantFoundation\Api\IAgentExecutionService;
-use AssistantFoundation\Api\IAgentRuntimeRegistry;
-use AssistantFoundation\Api\IAgentRuntimeSelector;
-use AssistantFoundation\Api\IAgentSuspensionRepository;
-use AssistantFoundation\Api\IAgentTextTaskService;
-use AssistantFoundation\Api\IAgentToolProfileService;
-use AssistantRuntime\Service\AgentContextProfileService;
-use AssistantRuntime\Service\AgentRuntimeRegistry;
-use AssistantRuntime\Service\AgentToolProfileService;
-use AssistantRuntime\Service\CompositeAgentConfigFormService;
-use AssistantRuntime\Service\RoutingAgentConversationService;
-use AssistantRuntime\Service\RoutingAgentExecutionService;
-use AssistantRuntime\Service\RoutingAgentTextTaskService;
-use AssistantRuntime\Service\StateStoreAgentSuspensionRepository;
-use AssistantRuntime\Service\StrictAgentRuntimeSelector;
-use Base3\Api\IClassMap;
-use Base3\Api\IContainer;
-use Base3\Api\IPlugin;
-use Base3\Api\IRequest;
-use Base3\Language\Api\ILanguage;
-use Base3\State\Api\IStateStore;
+use Base3\AssistantFoundation\Api\IAgentConfigFormService;
+use Base3\AssistantFoundation\Api\IAgentConversationService;
+use Base3\AssistantFoundation\Api\IAgentContextProfileService;
+use Base3\AssistantFoundation\Api\IAgentExecutionService;
+use Base3\AssistantFoundation\Api\IAgentRuntimeRegistry;
+use Base3\AssistantFoundation\Api\IAgentRuntimeSelector;
+use Base3\AssistantFoundation\Api\IAgentSuspensionRepository;
+use Base3\AssistantFoundation\Api\IAgentTextTaskService;
+use Base3\AssistantFoundation\Api\IAgentToolProfileService;
+use Base3\AssistantRuntime\Service\AgentContextProfileService;
+use Base3\AssistantRuntime\Service\AgentRuntimeRegistry;
+use Base3\AssistantRuntime\Service\AgentToolProfileService;
+use Base3\AssistantRuntime\Service\CompositeAgentConfigFormService;
+use Base3\AssistantRuntime\Service\RoutingAgentConversationService;
+use Base3\AssistantRuntime\Service\RoutingAgentExecutionService;
+use Base3\AssistantRuntime\Service\RoutingAgentTextTaskService;
+use Base3\AssistantRuntime\Service\StateStoreAgentSuspensionRepository;
+use Base3\AssistantRuntime\Service\StrictAgentRuntimeSelector;
+use Base3\CoreFoundation\Api\IClassMap;
+use Base3\CoreFoundation\Api\IContainer;
+use Base3\CoreFoundation\Api\IPlugin;
+use Base3\CoreFoundation\Api\IRequest;
+use Base3\CoreFoundation\Language\Api\ILanguage;
+use Base3\CoreFoundation\State\Api\IStateStore;
 
 class AssistantRuntimePlugin implements IPlugin {
 

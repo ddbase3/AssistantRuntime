@@ -1,14 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace AssistantRuntime\Test\Service;
+/***********************************************************************
+ * This file is part of AssistantRuntime for BASE3 Framework.
+ *
+ * AssistantRuntime provides the shared execution routing for BASE3 agents.
+ * It composes runtime registries, sinks, selectors and configuration services.
+ * Agent contracts remain in AssistantFoundation and runtime plugins.
+ *
+ * Developed by Daniel Dahme
+ * Licensed under GPL-3.0
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * https://base3.de
+ * https://github.com/ddbase3/AssistantRuntime
+ **********************************************************************/
 
-use AssistantFoundation\Api\IAgentEventSink;
-use AssistantFoundation\Api\IAgentRuntimeRegistry;
-use AssistantFoundation\Api\IAgentRuntimeSelector;
-use AssistantFoundation\Api\IAgentRuntimeService;
-use AssistantFoundation\Dto\AgentExecutionRequest;
-use AssistantFoundation\Dto\AgentExecutionResult;
-use AssistantRuntime\Service\RoutingAgentExecutionService;
+namespace Base3\AssistantRuntime\Test\Service;
+
+use Base3\AssistantFoundation\Api\IAgentEventSink;
+use Base3\AssistantFoundation\Api\IAgentRuntimeRegistry;
+use Base3\AssistantFoundation\Api\IAgentRuntimeSelector;
+use Base3\AssistantFoundation\Api\IAgentRuntimeService;
+use Base3\AssistantFoundation\Dto\AgentExecutionRequest;
+use Base3\AssistantFoundation\Dto\AgentExecutionResult;
+use Base3\AssistantRuntime\Service\RoutingAgentExecutionService;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 

@@ -15,9 +15,9 @@
  * https://github.com/ddbase3/AssistantRuntime
  **********************************************************************/
 
-namespace AssistantRuntime\Service;
+namespace Base3\AssistantRuntime\Service;
 
-use AssistantFoundation\Api\IAgentRuntimeRegistry;
+use Base3\AssistantFoundation\Api\IAgentRuntimeRegistry;
 
 final class PreferredAgentRuntimeSelector extends StrictAgentRuntimeSelector {
 

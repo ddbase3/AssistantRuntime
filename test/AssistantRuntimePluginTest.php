@@ -1,27 +1,42 @@
 <?php declare(strict_types=1);
 
-namespace AssistantRuntime\Test;
+/***********************************************************************
+ * This file is part of AssistantRuntime for BASE3 Framework.
+ *
+ * AssistantRuntime provides the shared execution routing for BASE3 agents.
+ * It composes runtime registries, sinks, selectors and configuration services.
+ * Agent contracts remain in AssistantFoundation and runtime plugins.
+ *
+ * Developed by Daniel Dahme
+ * Licensed under GPL-3.0
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * https://base3.de
+ * https://github.com/ddbase3/AssistantRuntime
+ **********************************************************************/
 
-use AssistantFoundation\Api\IAgentConfigFormService;
-use AssistantFoundation\Api\IAgentContextProfileService;
-use AssistantFoundation\Api\IAgentConversationService;
-use AssistantFoundation\Api\IAgentExecutionService;
-use AssistantFoundation\Api\IAgentRuntimeRegistry;
-use AssistantFoundation\Api\IAgentRuntimeSelector;
-use AssistantFoundation\Api\IAgentSuspensionRepository;
-use AssistantFoundation\Api\IAgentTextTaskService;
-use AssistantFoundation\Api\IAgentToolProfileService;
-use AssistantRuntime\AssistantRuntimePlugin;
-use AssistantRuntime\Service\AgentContextProfileService;
-use AssistantRuntime\Service\AgentRuntimeRegistry;
-use AssistantRuntime\Service\AgentToolProfileService;
-use AssistantRuntime\Service\CompositeAgentConfigFormService;
-use AssistantRuntime\Service\RoutingAgentConversationService;
-use AssistantRuntime\Service\RoutingAgentExecutionService;
-use AssistantRuntime\Service\RoutingAgentTextTaskService;
-use AssistantRuntime\Service\StateStoreAgentSuspensionRepository;
-use AssistantRuntime\Service\StrictAgentRuntimeSelector;
-use Base3\Api\IContainer;
+namespace Base3\AssistantRuntime\Test;
+
+use Base3\AssistantFoundation\Api\IAgentConfigFormService;
+use Base3\AssistantFoundation\Api\IAgentContextProfileService;
+use Base3\AssistantFoundation\Api\IAgentConversationService;
+use Base3\AssistantFoundation\Api\IAgentExecutionService;
+use Base3\AssistantFoundation\Api\IAgentRuntimeRegistry;
+use Base3\AssistantFoundation\Api\IAgentRuntimeSelector;
+use Base3\AssistantFoundation\Api\IAgentSuspensionRepository;
+use Base3\AssistantFoundation\Api\IAgentTextTaskService;
+use Base3\AssistantFoundation\Api\IAgentToolProfileService;
+use Base3\AssistantRuntime\AssistantRuntimePlugin;
+use Base3\AssistantRuntime\Service\AgentContextProfileService;
+use Base3\AssistantRuntime\Service\AgentRuntimeRegistry;
+use Base3\AssistantRuntime\Service\AgentToolProfileService;
+use Base3\AssistantRuntime\Service\CompositeAgentConfigFormService;
+use Base3\AssistantRuntime\Service\RoutingAgentConversationService;
+use Base3\AssistantRuntime\Service\RoutingAgentExecutionService;
+use Base3\AssistantRuntime\Service\RoutingAgentTextTaskService;
+use Base3\AssistantRuntime\Service\StateStoreAgentSuspensionRepository;
+use Base3\AssistantRuntime\Service\StrictAgentRuntimeSelector;
+use Base3\CoreFoundation\Api\IContainer;
 use PHPUnit\Framework\TestCase;
 
 final class AssistantRuntimePluginTest extends TestCase {

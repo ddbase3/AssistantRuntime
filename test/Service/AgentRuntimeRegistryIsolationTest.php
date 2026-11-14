@@ -1,19 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace AssistantRuntime\Test\Service;
+/***********************************************************************
+ * This file is part of AssistantRuntime for BASE3 Framework.
+ *
+ * AssistantRuntime provides the shared execution routing for BASE3 agents.
+ * It composes runtime registries, sinks, selectors and configuration services.
+ * Agent contracts remain in AssistantFoundation and runtime plugins.
+ *
+ * Developed by Daniel Dahme
+ * Licensed under GPL-3.0
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * https://base3.de
+ * https://github.com/ddbase3/AssistantRuntime
+ **********************************************************************/
 
-use AssistantFoundation\Api\IAgentConversationRuntimeService;
-use AssistantFoundation\Api\IAgentRuntimeConfigFormService;
-use AssistantFoundation\Api\IAgentRuntimeService;
-use AssistantFoundation\Api\IAgentTextTaskRuntimeService;
-use AssistantRuntime\Service\AgentRuntimeRegistry;
-use AssistantRuntime\Test\Service\Fixtures\AlphaRuntimeConversationFixture;
-use AssistantRuntime\Test\Service\Fixtures\AlphaRuntimeExecutionFixture;
-use AssistantRuntime\Test\Service\Fixtures\AlphaRuntimeFormFixture;
-use AssistantRuntime\Test\Service\Fixtures\AlphaRuntimeTextTaskFixture;
-use AssistantRuntime\Test\Service\Fixtures\BetaRuntimeExecutionFixture;
-use AssistantRuntime\Test\Service\Fixtures\BetaRuntimeFormFixture;
-use Base3\Api\IClassMap;
+namespace Base3\AssistantRuntime\Test\Service;
+
+use Base3\AssistantFoundation\Api\IAgentConversationRuntimeService;
+use Base3\AssistantFoundation\Api\IAgentRuntimeConfigFormService;
+use Base3\AssistantFoundation\Api\IAgentRuntimeService;
+use Base3\AssistantFoundation\Api\IAgentTextTaskRuntimeService;
+use Base3\AssistantRuntime\Service\AgentRuntimeRegistry;
+use Base3\AssistantRuntime\Test\Service\Fixtures\AlphaRuntimeConversationFixture;
+use Base3\AssistantRuntime\Test\Service\Fixtures\AlphaRuntimeExecutionFixture;
+use Base3\AssistantRuntime\Test\Service\Fixtures\AlphaRuntimeFormFixture;
+use Base3\AssistantRuntime\Test\Service\Fixtures\AlphaRuntimeTextTaskFixture;
+use Base3\AssistantRuntime\Test\Service\Fixtures\BetaRuntimeExecutionFixture;
+use Base3\AssistantRuntime\Test\Service\Fixtures\BetaRuntimeFormFixture;
+use Base3\CoreFoundation\Api\IClassMap;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 

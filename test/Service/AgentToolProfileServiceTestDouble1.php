@@ -1,15 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace AssistantRuntime\Test\Service;
+/***********************************************************************
+ * This file is part of AssistantRuntime for BASE3 Framework.
+ *
+ * AssistantRuntime provides the shared execution routing for BASE3 agents.
+ * It composes runtime registries, sinks, selectors and configuration services.
+ * Agent contracts remain in AssistantFoundation and runtime plugins.
+ *
+ * Developed by Daniel Dahme
+ * Licensed under GPL-3.0
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * https://base3.de
+ * https://github.com/ddbase3/AssistantRuntime
+ **********************************************************************/
 
-use AssistantFoundation\Api\IAgentToolProfileProvider;
-use AssistantFoundation\Api\IAgentToolSet;
-use AssistantFoundation\Dto\AgentCapability;
-use AssistantFoundation\Dto\AgentCapabilityCatalog;
-use AssistantFoundation\Dto\AgentExecutionRequest;
-use AssistantFoundation\Dto\AgentToolResult;
-use AssistantRuntime\Service\AgentToolProfileService;
-use Base3\Api\IClassMap;
+namespace Base3\AssistantRuntime\Test\Service;
+
+use Base3\AssistantFoundation\Api\IAgentToolProfileProvider;
+use Base3\AssistantFoundation\Api\IAgentToolSet;
+use Base3\AssistantFoundation\Dto\AgentCapability;
+use Base3\AssistantFoundation\Dto\AgentCapabilityCatalog;
+use Base3\AssistantFoundation\Dto\AgentExecutionRequest;
+use Base3\AssistantFoundation\Dto\AgentToolResult;
+use Base3\AssistantRuntime\Service\AgentToolProfileService;
+use Base3\CoreFoundation\Api\IClassMap;
 use PHPUnit\Framework\TestCase;
 
 final class AgentToolProfileServiceTestDouble1 implements IAgentToolProfileProvider {
@@ -32,6 +47,6 @@ final class AgentToolProfileServiceTestDouble1 implements IAgentToolProfileProvi
 				$sets = [];
 				if (in_array('first', $profileIds, true)) $sets[] = $this->first;
 				if (in_array('second', $profileIds, true)) $sets[] = $this->second;
-				return new \AssistantRuntime\Service\CompositeAgentToolSet($sets);
+				return new \Base3\AssistantRuntime\Service\CompositeAgentToolSet($sets);
 			}
 		}

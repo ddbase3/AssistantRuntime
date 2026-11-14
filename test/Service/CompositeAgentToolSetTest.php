@@ -1,18 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace AssistantRuntime\Test\Service;
+/***********************************************************************
+ * This file is part of AssistantRuntime for BASE3 Framework.
+ *
+ * AssistantRuntime provides the shared execution routing for BASE3 agents.
+ * It composes runtime registries, sinks, selectors and configuration services.
+ * Agent contracts remain in AssistantFoundation and runtime plugins.
+ *
+ * Developed by Daniel Dahme
+ * Licensed under GPL-3.0
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * https://base3.de
+ * https://github.com/ddbase3/AssistantRuntime
+ **********************************************************************/
 
-use AssistantFoundation\Api\IAgentConfirmableToolSet;
-use AssistantFoundation\Api\IAgentToolSet;
-use AssistantFoundation\Dto\AgentAction;
-use AssistantFoundation\Dto\AgentCapability;
-use AssistantFoundation\Dto\AgentCapabilityCatalog;
-use AssistantFoundation\Dto\AgentExecutionStatus;
-use AssistantFoundation\Dto\AgentInteractionRequest;
-use AssistantFoundation\Dto\AgentInteractionResponse;
-use AssistantFoundation\Dto\AgentSuspension;
-use AssistantFoundation\Dto\AgentToolResult;
-use AssistantRuntime\Service\CompositeAgentToolSet;
+namespace Base3\AssistantRuntime\Test\Service;
+
+use Base3\AssistantFoundation\Api\IAgentConfirmableToolSet;
+use Base3\AssistantFoundation\Api\IAgentToolSet;
+use Base3\AssistantFoundation\Dto\AgentAction;
+use Base3\AssistantFoundation\Dto\AgentCapability;
+use Base3\AssistantFoundation\Dto\AgentCapabilityCatalog;
+use Base3\AssistantFoundation\Dto\AgentExecutionStatus;
+use Base3\AssistantFoundation\Dto\AgentInteractionRequest;
+use Base3\AssistantFoundation\Dto\AgentInteractionResponse;
+use Base3\AssistantFoundation\Dto\AgentSuspension;
+use Base3\AssistantFoundation\Dto\AgentToolResult;
+use Base3\AssistantRuntime\Service\CompositeAgentToolSet;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;

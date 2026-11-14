@@ -15,20 +15,20 @@
  * https://github.com/ddbase3/AssistantRuntime
  **********************************************************************/
 
-namespace AssistantRuntime\Display;
+namespace Base3\AssistantRuntime\Display;
 
-use Base3\Api\IDisplay;
-use Base3\Api\IMvcView;
-use Base3\Api\IRequest;
-use Base3\Authorization\Api\IAuthorizationService;
-use Base3\Authorization\Dto\AuthorizationRequest;
-use Base3\Usermanager\Permission;
-use AssistantRuntime\Feature\AiServiceDashboardFeature;
-use Base3\Configuration\Api\IConfiguration;
-use Base3\Api\IClassMap;
-use Base3\LinkTarget\Api\ILinkTargetService;
-use Base3\Session\Api\ISession;
-use AssistantFoundation\Api\IAiServiceTester;
+use Base3\CoreFoundation\Api\IDisplay;
+use Base3\CoreFoundation\Api\IMvcView;
+use Base3\CoreFoundation\Api\IRequest;
+use Base3\CoreFoundation\Authorization\Api\IAuthorizationService;
+use Base3\CoreFoundation\Authorization\Dto\AuthorizationRequest;
+use Base3\CoreFoundation\Usermanager\Permission;
+use Base3\AssistantRuntime\Feature\AiServiceDashboardFeature;
+use Base3\CoreFoundation\Configuration\Api\IConfiguration;
+use Base3\CoreFoundation\Api\IClassMap;
+use Base3\CoreFoundation\LinkTarget\Api\ILinkTargetService;
+use Base3\CoreFoundation\Session\Api\ISession;
+use Base3\AssistantFoundation\Api\IAiServiceTester;
 
 class AiServiceDashboardDisplay implements IDisplay {
 

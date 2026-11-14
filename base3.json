@@ -1,7 +1,7 @@
 {
 	"manifestVersion": 1,
 	"name": "AssistantRuntime",
-	"namespace": "AssistantRuntime",
+	"namespace": "Base3\\AssistantRuntime",
 	"version": "4.5.0",
 	"description": "Shared runtime composition and routing services for BASE3 assistant runtimes.",
 	"license": "GPL-3.0-or-later",
@@ -14,7 +14,7 @@
 	],
 	"repository": "https://github.com/ddbase3/AssistantRuntime",
 	"dependencies": {
-		"Base3Framework": ">=4.10.0",
+		"CoreFoundation": ">=4.10.0",
 		"AssistantFoundation": ">=4.17.0",
 		"UiFoundation": ">=4.3.0"
 	}

@@ -2,15 +2,26 @@
 
 /***********************************************************************
  * This file is part of AssistantRuntime for BASE3 Framework.
+ *
+ * AssistantRuntime provides the shared execution routing for BASE3 agents.
+ * It composes runtime registries, sinks, selectors and configuration services.
+ * Agent contracts remain in AssistantFoundation and runtime plugins.
+ *
+ * Developed by Daniel Dahme
+ * Licensed under GPL-3.0
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * https://base3.de
+ * https://github.com/ddbase3/AssistantRuntime
  **********************************************************************/
 
-namespace AssistantRuntime\Service;
+namespace Base3\AssistantRuntime\Service;
 
-use AssistantFoundation\Api\IAgentToolProfileProvider;
-use AssistantFoundation\Api\IAgentToolProfileService;
-use AssistantFoundation\Api\IAgentToolSet;
-use AssistantFoundation\Dto\AgentExecutionRequest;
-use Base3\Api\IClassMap;
+use Base3\AssistantFoundation\Api\IAgentToolProfileProvider;
+use Base3\AssistantFoundation\Api\IAgentToolProfileService;
+use Base3\AssistantFoundation\Api\IAgentToolSet;
+use Base3\AssistantFoundation\Dto\AgentExecutionRequest;
+use Base3\CoreFoundation\Api\IClassMap;
 
 /**
  * Discovers tool-profile providers and resolves selected profiles into one

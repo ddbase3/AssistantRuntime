@@ -15,11 +15,11 @@
  * https://github.com/ddbase3/AssistantRuntime
  **********************************************************************/
 
-namespace AssistantRuntime\Service;
+namespace Base3\AssistantRuntime\Service;
 
-use AssistantFoundation\Api\IAgentContext;
-use AssistantFoundation\Api\IAgentEventSink;
-use AssistantFoundation\Dto\AgentExecutionEvent;
+use Base3\AssistantFoundation\Api\IAgentContext;
+use Base3\AssistantFoundation\Api\IAgentEventSink;
+use Base3\AssistantFoundation\Dto\AgentExecutionEvent;
 
 /**
  * Small shared helper for resolving and writing the run-scoped event sink.

@@ -1,19 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace AssistantRuntime\Test\Display;
+/***********************************************************************
+ * This file is part of AssistantRuntime for BASE3 Framework.
+ *
+ * AssistantRuntime provides the shared execution routing for BASE3 agents.
+ * It composes runtime registries, sinks, selectors and configuration services.
+ * Agent contracts remain in AssistantFoundation and runtime plugins.
+ *
+ * Developed by Daniel Dahme
+ * Licensed under GPL-3.0
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * https://base3.de
+ * https://github.com/ddbase3/AssistantRuntime
+ **********************************************************************/
 
-use AssistantRuntime\Display\AiServiceDashboardDisplay;
-use AssistantRuntime\Feature\AiServiceDashboardFeature;
-use Base3\Authorization\Dto\AuthorizationDecision;
-use AssistantRuntime\Test\Display\Fixtures\ApiKeyDashboardTester;
-use AssistantRuntime\Test\Display\Fixtures\TranslationDashboardTester;
-use Base3\Api\IClassMap;
-use Base3\Api\IMvcView;
-use Base3\Api\IRequest;
-use Base3\Authorization\Api\IAuthorizationService;
-use Base3\Configuration\Api\IConfiguration;
-use Base3\LinkTarget\Api\ILinkTargetService;
-use Base3\Session\Api\ISession;
+namespace Base3\AssistantRuntime\Test\Display;
+
+use Base3\AssistantRuntime\Display\AiServiceDashboardDisplay;
+use Base3\AssistantRuntime\Feature\AiServiceDashboardFeature;
+use Base3\CoreFoundation\Authorization\Dto\AuthorizationDecision;
+use Base3\AssistantRuntime\Test\Display\Fixtures\ApiKeyDashboardTester;
+use Base3\AssistantRuntime\Test\Display\Fixtures\TranslationDashboardTester;
+use Base3\CoreFoundation\Api\IClassMap;
+use Base3\CoreFoundation\Api\IMvcView;
+use Base3\CoreFoundation\Api\IRequest;
+use Base3\CoreFoundation\Authorization\Api\IAuthorizationService;
+use Base3\CoreFoundation\Configuration\Api\IConfiguration;
+use Base3\CoreFoundation\LinkTarget\Api\ILinkTargetService;
+use Base3\CoreFoundation\Session\Api\ISession;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use RuntimeException;

@@ -1,13 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace AssistantRuntime\Test\Service;
+/***********************************************************************
+ * This file is part of AssistantRuntime for BASE3 Framework.
+ *
+ * AssistantRuntime provides the shared execution routing for BASE3 agents.
+ * It composes runtime registries, sinks, selectors and configuration services.
+ * Agent contracts remain in AssistantFoundation and runtime plugins.
+ *
+ * Developed by Daniel Dahme
+ * Licensed under GPL-3.0
+ * https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * https://base3.de
+ * https://github.com/ddbase3/AssistantRuntime
+ **********************************************************************/
 
-use AssistantFoundation\Api\IAgentContextProfileProvider;
-use AssistantFoundation\Dto\AgentContextProfileResult;
-use AssistantFoundation\Dto\AgentExecutionRequest;
-use AssistantFoundation\Dto\AgentInstructionBlock;
-use AssistantRuntime\Service\AgentContextProfileService;
-use Base3\Api\IClassMap;
+namespace Base3\AssistantRuntime\Test\Service;
+
+use Base3\AssistantFoundation\Api\IAgentContextProfileProvider;
+use Base3\AssistantFoundation\Dto\AgentContextProfileResult;
+use Base3\AssistantFoundation\Dto\AgentExecutionRequest;
+use Base3\AssistantFoundation\Dto\AgentInstructionBlock;
+use Base3\AssistantRuntime\Service\AgentContextProfileService;
+use Base3\CoreFoundation\Api\IClassMap;
 use PHPUnit\Framework\TestCase;
 
 final class AgentContextProfileServiceTestDouble1 implements IAgentContextProfileProvider  {

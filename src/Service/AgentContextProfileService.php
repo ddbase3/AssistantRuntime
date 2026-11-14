@@ -15,13 +15,13 @@
  * https://github.com/ddbase3/AssistantRuntime
  **********************************************************************/
 
-namespace AssistantRuntime\Service;
+namespace Base3\AssistantRuntime\Service;
 
-use AssistantFoundation\Api\IAgentContextProfileProvider;
-use AssistantFoundation\Api\IAgentContextProfileService;
-use AssistantFoundation\Dto\AgentContextProfileResult;
-use AssistantFoundation\Dto\AgentExecutionRequest;
-use Base3\Api\IClassMap;
+use Base3\AssistantFoundation\Api\IAgentContextProfileProvider;
+use Base3\AssistantFoundation\Api\IAgentContextProfileService;
+use Base3\AssistantFoundation\Dto\AgentContextProfileResult;
+use Base3\AssistantFoundation\Dto\AgentExecutionRequest;
+use Base3\CoreFoundation\Api\IClassMap;
 use RuntimeException;
 
 /**

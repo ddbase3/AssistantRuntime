@@ -15,14 +15,14 @@
  * https://github.com/ddbase3/AssistantRuntime
  **********************************************************************/
 
-namespace AssistantRuntime\Service;
+namespace Base3\AssistantRuntime\Service;
 
-use AssistantFoundation\Api\IAgentConversationRuntimeService;
-use AssistantFoundation\Api\IAgentRuntimeConfigFormService;
-use AssistantFoundation\Api\IAgentRuntimeRegistry;
-use AssistantFoundation\Api\IAgentRuntimeService;
-use AssistantFoundation\Api\IAgentTextTaskRuntimeService;
-use Base3\Api\IClassMap;
+use Base3\AssistantFoundation\Api\IAgentConversationRuntimeService;
+use Base3\AssistantFoundation\Api\IAgentRuntimeConfigFormService;
+use Base3\AssistantFoundation\Api\IAgentRuntimeRegistry;
+use Base3\AssistantFoundation\Api\IAgentRuntimeService;
+use Base3\AssistantFoundation\Api\IAgentTextTaskRuntimeService;
+use Base3\CoreFoundation\Api\IClassMap;
 use RuntimeException;
 
 final class AgentRuntimeRegistry implements IAgentRuntimeRegistry {
